@@ -2,6 +2,8 @@
 """
 OAK-D Lite 뎁스 카메라의 RGB 및 Depth 데이터 수신을 전담하는 모듈입니다.
 depthai 라이브러리를 사용하며, 별도의 스레드에서 동작합니다.
+(수정: Gen2 API 최신 설정 및 Depth-RGB 정렬 적용)
+(수정: 개별 프레임(RGB/Depth) 요청 메소드 추가)
 """
 
 import threading
@@ -10,6 +12,7 @@ import cv2
 import depthai as dai
 import numpy as np
 import config
+import os
 
 class DepthCameraSensor(threading.Thread):
     """
@@ -24,7 +27,7 @@ class DepthCameraSensor(threading.Thread):
         super().__init__()
         self.daemon = True
 
-        self.latest_rgb_frame = None   # 가장 최근의 RGB 프레임 (OpenCV Mat 형식)
+        self.latest_rgb_frame = None    # 가장 최근의 RGB 프레임 (OpenCV Mat 형식)
         self.latest_depth_frame = None # 가장 최근의 Depth 프레임 (raw data)
         self.running = True
         self.logger = logger
@@ -59,10 +62,13 @@ class DepthCameraSensor(threading.Thread):
         mono_left.setBoardSocket(dai.CameraBoardSocket.LEFT)
         mono_right.setBoardSocket(dai.CameraBoardSocket.RIGHT)
         
-        # 스테레오 뎁스 설정
+        # 스테레오 뎁스 설정 (최신 권장 설정 적용)
         stereo.setDefaultProfilePreset(dai.node.StereoDepth.Profile.HIGH_DENSITY)
+        stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
+        stereo.setSubpixel(True)
+        stereo.setExtendedDisparity(False) 
         stereo.setLeftRightCheck(True)
-        stereo.setSubpixel(False)
+        stereo.setMedianFilter(dai.MedianFilter.KERNEL_7x7)
         
         # 3. 출력(XLinkOut) 노드 생성
         xout_rgb = pipeline.create(dai.node.XLinkOut)
@@ -77,7 +83,7 @@ class DepthCameraSensor(threading.Thread):
         stereo.depth.link(xout_depth.input)
         
         self.pipeline = pipeline
-        print("[Camera] DepthAI 파이프라인 생성 완료.")
+        print("[Camera] DepthAI 파이프라인 생성 완료. (RGB-Depth 정렬 활성화)")
 
     def run(self):
         """스레드가 시작될 때 실행되는 메인 루프"""
@@ -103,7 +109,7 @@ class DepthCameraSensor(threading.Thread):
                         self.latest_rgb_frame = in_rgb.getCvFrame()
 
                     if in_depth is not None:
-                        # 뎁스 프레임(거리 정보)을 가져옴
+                        # 뎁스 프레임(거리 정보, uint16, mm단위)을 가져옴
                         self.latest_depth_frame = in_depth.getFrame()
 
                     # 데이터 로깅 처리
@@ -111,6 +117,8 @@ class DepthCameraSensor(threading.Thread):
 
         except Exception as e:
             print(f"[Camera] 치명적 에러: 카메라 스레드 실행 중 예외 발생: {e}")
+            print("[Camera] 팁: '프로파일 없음(No profile)' 오류는 OAK-1(렌즈 1개) 모델에서")
+            print("[Camera]     이 OAK-D(렌즈 3개)용 코드를 실행할 때 발생합니다. 모델을 확인하세요.")
         finally:
             print("[Camera] 카메라 스레드 종료 완료.")
 
@@ -145,6 +153,22 @@ class DepthCameraSensor(threading.Thread):
         """
         return self.latest_rgb_frame, self.latest_depth_frame
 
+    # --- [추가된 코드] ---
+    def get_rgb_frame(self):
+        """
+        가장 최근의 RGB 프레임만 반환합니다.
+        :return: OpenCV Mat 형식의 RGB 프레임
+        """
+        return self.latest_rgb_frame
+
+    def get_depth_frame(self):
+        """
+        가장 최근의 Depth 프레임(raw data)만 반환합니다.
+        :return: raw Depth 프레임 (uint16 numpy array)
+        """
+        return self.latest_depth_frame
+    # --- [추가 완료] ---
+
     def stop(self):
         """스레드를 안전하게 종료시키기 위해 호출하는 함수"""
         print("[Camera] 종료 신호 수신.")
@@ -171,19 +195,18 @@ if __name__ == '__main__':
 
     try:
         while True:
-            # get_data()로 프레임 받아오기
-            rgb_frame, depth_frame = cam_sensor.get_data()
+            # --- [수정] 새 메소드를 사용하여 각각 데이터 요청 ---
+            rgb_frame = cam_sensor.get_rgb_frame()
+            depth_frame = cam_sensor.get_depth_frame()
             
             # 받은 프레임이 있으면 화면에 표시
             if rgb_frame is not None:
                 cv2.imshow("RGB Test", rgb_frame)
 
             if depth_frame is not None:
-                # 뎁스 프레임은 바로 보이지 않으므로 시각화 처리
-                depth_color = cv2.applyColorMap(
-                    cv2.convertScaleAbs(depth_frame, alpha=0.03), 
-                    cv2.COLORMAP_JET
-                )
+                # 뎁스 프레임 시각화 (Normalize 방식)
+                depth_norm = cv2.normalize(depth_frame, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+                depth_color = cv2.applyColorMap(depth_norm, cv2.COLORMAP_JET)
                 cv2.imshow("Depth Test", depth_color)
 
             # 1ms 대기, 'q' 누르면 종료
