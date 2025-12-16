@@ -1,7 +1,6 @@
-Exception has occurred: ImportError
-cannot import name 'LidarSensor' from 'input.lidar_sensor' (/home/naoe/Develop/testt/v2/input/lidar_sensor.py)
-  File "/home/naoe/Develop/testt/v2/input/__init__.py", line 3, in <module>
-    from .lidar_sensor import LidarSensor
-  File "/home/naoe/Develop/testt/v2/test_sensor.py", line 7, in <module>
-    from input.lidar_sensor import LidarSensor
-ImportError: cannot import name 'LidarSensor' from 'input.lidar_sensor' (/home/naoe/Develop/testt/v2/input/lidar_sensor.py)
+   └─ Characteristic UUID: 0000ffe4-0000-1000-8000-00805f9a34fb
+      속성: notify
+      ⭐ READ용 UUID (Notify)
+   └─ Characteristic UUID: 0000ffe9-0000-1000-8000-00805f9a34fb
+      속성: write-without-response, write
+      ✏️  WRITE용 UUID
