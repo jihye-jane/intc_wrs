@@ -1,15 +1,5 @@
-# config.py 파일 열어서 GPS/IMU 섹션 수정
-
-# =================================================================
-# 2. INPUT / SENSORS (센서)
-# =================================================================
-
-# ... (RPLIDAR, OAK-D 설정 생략)
-
-# (!!!) WT901BLECL (블루투스 GPS/IMU)
-GPS_DEVICE_NAME = 'WT901BLE'  # 스캔된 장치 이름
-
-# (!!!) UUID 설정 (scan_ble_uuid.py 결과)
-GPS_SERVICE_UUID = "0000ffe5-0000-1000-8000-00805f9a34fb"      # Service UUID
-GPS_DATA_CHAR_UUID = "0000ffe4-0000-1000-8000-00805f9a34fb"    # Notify (READ용) ⭐
-GPS_WRITE_CHAR_UUID = "0000ffe9-0000-1000-8000-00805f9a34fb"   # Write용 ✏️
+Exception has occurred: ImportError
+cannot import name 'LidarSensor' from 'input.lidar_sensor' (/home/naoe/Develop/testt/v21/input/lidar_sensor.py)
+  File "/home/naoe/Develop/testt/v21/test_sensor.py", line 7, in <module>
+    from input.lidar_sensor import LidarSensor
+ImportError: cannot import name 'LidarSensor' from 'input.lidar_sensor' (/home/naoe/Develop/testt/v21/input/lidar_sensor.py)
