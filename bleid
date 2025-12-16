@@ -1,0 +1,49 @@
+# scan_ble_uuid.py
+"""BLE 장치의 모든 서비스와 UUID를 스캔하는 스크립트"""
+import asyncio
+import bleak
+
+async def scan_device():
+    print("BLE 장치 스캔 중...")
+    devices = await bleak.BleakScanner.discover(timeout=10.0)
+    
+    target = None
+    print("\n--- 검색된 장치 ---")
+    for i, d in enumerate(devices):
+        if d.name and "WT" in d.name:
+            print(f"[{i+1}] {d.name} - {d.address}")
+            target = d
+    
+    if not target:
+        print("WT 장치를 찾을 수 없습니다.")
+        return
+    
+    print(f"\n선택된 장치: {target.name} ({target.address})")
+    print("연결 중...\n")
+    
+    async with bleak.BleakClient(target.address, timeout=15.0) as client:
+        print("=" * 60)
+        print(f"장치명: {target.name}")
+        print(f"주소: {target.address}")
+        print("=" * 60)
+        
+        for service in client.services:
+            print(f"\n📦 Service UUID: {service.uuid}")
+            print(f"   설명: {service.description}")
+            
+            for char in service.characteristics:
+                properties = ", ".join(char.properties)
+                print(f"   └─ Characteristic UUID: {char.uuid}")
+                print(f"      속성: {properties}")
+                
+                # Notify 속성이 있으면 표시
+                if "notify" in char.properties:
+                    print(f"      ⭐ READ용 UUID (Notify)")
+                if "write" in char.properties or "write-without-response" in char.properties:
+                    print(f"      ✏️  WRITE용 UUID")
+        
+        print("\n" + "=" * 60)
+        print("스캔 완료!")
+
+if __name__ == "__main__":
+    asyncio.run(scan_device())
