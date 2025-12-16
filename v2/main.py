@@ -9,7 +9,7 @@ UGV(무인 차량) 시스템의 메인 실행 파일입니다.
 import time
 import cv2  # OpenCV (디버깅용 영상 표시에 사용)
 import config  # 설정 파일 임포트
-
+#oooo
 # 1. 각 모듈 클래스 임포트
 from input.sensors import LidarSensor, CameraSensor, GpsImuSensor
 from input.manual_input import ManualInput
