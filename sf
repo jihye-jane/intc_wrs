@@ -1,32 +1,24 @@
-ERROR: Exception:
-Traceback (most recent call last):
-  File "/usr/lib/python3.11/shutil.py", line 825, in move
-    os.rename(src, real_dst)
-PermissionError: [Errno 13] 허가 거부: '/usr/local/lib/python3.11/dist-packages/serial-0.0.97.dist-info/' -> '/tmp/pip-uninstall-d_95ugyt'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/usr/lib/python3/dist-packages/pip/_internal/cli/base_command.py", line 160, in exc_logging_wrapper
-    status = run_func(*args)
-             ^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/pip/_internal/commands/uninstall.py", line 105, in run
-    uninstall_pathset = req.uninstall(
-                        ^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/pip/_internal/req/req_install.py", line 664, in uninstall
-    uninstalled_pathset.remove(auto_confirm, verbose)
-  File "/usr/lib/python3/dist-packages/pip/_internal/req/req_uninstall.py", line 373, in remove
-    moved.stash(path)
-  File "/usr/lib/python3/dist-packages/pip/_internal/req/req_uninstall.py", line 271, in stash
-    renames(path, new_path)
-  File "/usr/lib/python3/dist-packages/pip/_internal/utils/misc.py", line 312, in renames
-    shutil.move(old, new)
-  File "/usr/lib/python3.11/shutil.py", line 843, in move
-    rmtree(src)
-  File "/usr/lib/python3.11/shutil.py", line 732, in rmtree
-    _rmtree_safe_fd(fd, path, onerror)
-  File "/usr/lib/python3.11/shutil.py", line 683, in _rmtree_safe_fd
-    onerror(os.unlink, fullname, sys.exc_info())
-  File "/usr/lib/python3.11/shutil.py", line 681, in _rmtree_safe_fd
-    os.unlink(entry.name, dir_fd=topfd)
-PermissionError: [Errno 13] 허가 거부: 'METADATA'
+python3 -m input.lidar_sensor
+Input package loaded.
+<frozen runpy>:128: RuntimeWarning: 'input.lidar_sensor' found in sys.modules after import of package 'input', but prior to execution of 'input.lidar_sensor'; this may result in unpredictable behaviour
+라이다 센서 단독 테스트 시작...
+[Lidar] 라이다 스레드 초기화 완료.
+[Lidar] 라이다 연결 시도: /dev/ttyUSB0
+PyRPlidar Info : device is connected
+[Lidar] 라이다 연결 성공.
+[1/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[2/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[3/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[4/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[5/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[Lidar] 치명적 에러: 라이다 스레드 실행 중 예외 발생: index out of range
+[Lidar] 정리 작업 시작...
+[Lidar] 라이다 스레드 종료 완료.
+[6/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[7/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[8/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[9/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[10/10초] 스캔 데이터를 아직 받지 못했거나 에러 발생.
+[Lidar] 종료 신호 수신.
+라이다 센서 테스트 완료.
+PyRPlidar Info : device is disconnected
